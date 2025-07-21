@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTube - Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+        }
+
+        .header {
+            background: #212121;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #303030;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff0000;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 40px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px;
+            background: #121212;
+            border: 1px solid #303030;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #065fd4;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-player:hover {
+            transform: scale(1.01);
+        }
+
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+        .play-button::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 20px solid #000;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 40px 16px 16px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .video-container:hover .video-controls {
+            transform: translateY(0);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: #ff0000;
+            border-radius: 2px;
+            width: 30%;
+            transition: width 0.3s ease;
+        }
+
+        .controls-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .video-info {
+            padding: 20px 0;
+        }
+
+        .video-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .video-meta {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .channel-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .channel-name {
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .subscribe-btn {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-left: auto;
+        }
+
+        .subscribe-btn:hover {
+            background: #cc0000;
+        }
+
+        .video-description {
+            background: #212121;
+            padding: 16px;
+            border-radius: 8px;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .sidebar {
+            width: 400px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .recommended-video {
+            display: flex;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-bottom: 8px;
+        }
+
+        .recommended-video:hover {
+            background: #212121;
+        }
+
+        .video-thumbnail {
+            width: 168px;
+            height: 94px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 8px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .video-details {
+            flex: 1;
+        }
+
+        .video-details h4 {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .video-details p {
+            font-size: 12px;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 16px;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .search-bar {
+                margin: 0 20px;
+            }
+        }
+
+        .playing {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">MyTube</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search videos...">
+        </div>
+        <div style="color: #aaa;">●●●</div>
+    </header>
+
+    <div class="container">
+        <main class="main-content">
+            <div class="video-container">
+                <div class="video-player" id="videoPlayer">
+                    <div class="play-button" id="playButton"></div>
+                    <div class="video-controls">
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress" id="progress"></div>
+                        </div>
+                        <div class="controls-bottom">
+                            <div>
+                                <button class="control-btn" id="playPauseBtn">▶</button>
+                                <button class="control-btn">🔊</button>
+                                <span style="font-size: 12px; margin-left: 8px;">2:34 / 8:42</span>
+                            </div>
+                            <div>
+                                <button class="control-btn">⚙</button>
+                                <button class="control-btn">⛶</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="video-info">
+                <h1 class="video-title">Amazing Coding Tutorial: Build Your First Web App</h1>
+                <div class="video-meta">1,234,567 views • 2 days ago</div>
+                
+                <div class="channel-info">
+                    <div class="channel-avatar">TC</div>
+                    <div>
+                        <div class="channel-name">TechCreator</div>
+                        <div style="font-size: 12px; color: #aaa;">2.5M subscribers</div>
+                    </div>
+                    <button class="subscribe-btn">Subscribe</button>
+                </div>
+
+                <div class="video-description">
+                    <p>Learn how to build your first web application from scratch! In this comprehensive tutorial, we'll cover HTML, CSS, and JavaScript fundamentals.</p>
+                    <br>
+                    <p>📚 What you'll learn:<br>
+                    • HTML structure and semantics<br>
+                    • CSS styling and layouts<br>
+                    • JavaScript interactivity<br>
+                    • Best practices for web development</p>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <h3 class="sidebar-title">Up next</h3>
+            
+            <div class="recommended-video">
+                <div class="video-thumbnail">Video Preview</div>
+                <div class="video-details">
+                    <h4>JavaScript Basics for Beginners</h4>
+                    <p>CodeMaster<br>856K views • 1 week ago</p>
+                </div>
+            </div>
+
+            <div class="recommended-video">
+                <div class="video-thumbnail">Video Preview</div>
+                <div class="video-details">
+                    <h4>CSS Grid Layout Complete Guide</h4>
+                    <p>WebDesignPro<br>432K views • 3 days ago</p>
+                </div>
+            </div>
+
+            <div class="recommended-video">
+                <div class="video-thumbnail">Video Preview</div>
+                <div class="video-details">
+                    <h4>React Hooks Explained Simply</h4>
+                    <p>ReactGuru<br>1.2M views • 5 days ago</p>
+                </div>
+            </div>
+
+            <div class="recommended-video">
+                <div class="video-thumbnail">Video Preview</div>
+                <div class="video-details">
+                    <h4>Node.js Backend Development</h4>
+                    <p>BackendExpert<br>678K views • 1 week ago</p>
+                </div>
+            </div>
+
+            <div class="recommended-video">
+                <div class="video-thumbnail">Video Preview</div>
+                <div class="video-details">
+                    <h4>Database Design Best Practices</h4>
+                    <p>DataArchitect<br>234K views • 4 days ago</p>
+                </div>
+            </div>
+
+            <div class="recommended-video">
+                <div class="video-thumbnail">Video Preview</div>
+                <div class="video-details">
+                    <h4>Web Performance Optimization</h4>
+                    <p>SpeedMaster<br>567K views • 2 weeks ago</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const playButton = document.getElementById('playButton');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        
+        let isPlaying = false;
+        let currentTime = 154; // 2:34 in seconds
+        let duration = 522; // 8:42 in seconds
+        let progressInterval;
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                videoPlayer.classList.add('playing');
+                playButton.style.display = 'none';
+                playPauseBtn.textContent = '⏸';
+                startProgress();
+            } else {
+                videoPlayer.classList.remove('playing');
+                playButton.style.display = 'flex';
+                playPauseBtn.textContent = '▶';
+                stopProgress();
+            }
+        }
+
+        function startProgress() {
+            progressInterval = setInterval(() => {
+                if (currentTime < duration) {
+                    currentTime++;
+                    updateProgress();
+                } else {
+                    stopProgress();
+                    isPlaying = false;
+                    videoPlayer.classList.remove('playing');
+                    playButton.style.display = 'flex';
+                    playPauseBtn.textContent = '▶';
+                }
+            }, 1000);
+        }
+
+        function stopProgress() {
+            clearInterval(progressInterval);
+        }
+
+        function updateProgress() {
+            const percentage = (currentTime / duration) * 100;
+            progress.style.width = percentage + '%';
+            
+            // Update time display
+            const currentMin = Math.floor(currentTime / 60);
+            const currentSec = currentTime % 60;
+            const durationMin = Math.floor(duration / 60);
+            const durationSec = duration % 60;
+            
+            const timeDisplay = document.querySelector('.controls-bottom span');
+            timeDisplay.textContent = `${currentMin}:${currentSec.toString().padStart(2, '0')} / ${durationMin}:${durationSec.toString().padStart(2, '0')}`;
+        }
+
+        function seekVideo(e) {
+            const rect = progressBar.getBoundingClientRect();
+            const clickPosition = e.clientX - rect.left;
+            const percentage = clickPosition / rect.width;
+            currentTime = Math.floor(percentage * duration);
+            updateProgress();
+        }
+
+        // Event listeners
+        playButton.addEventListener('click', togglePlay);
+        playPauseBtn.addEventListener('click', togglePlay);
+        videoPlayer.addEventListener('click', (e) => {
+            if (e.target === videoPlayer) {
+                togglePlay();
+            }
+        });
+        progressBar.addEventListener('click', seekVideo);
+
+        // Recommended video clicks
+        document.querySelectorAll('.recommended-video').forEach((video, index) => {
+            video.addEventListener('click', () => {
+                // Simulate loading new video
+                const titles = [
+                    'JavaScript Basics for Beginners',
+                    'CSS Grid Layout Complete Guide', 
+                    'React Hooks Explained Simply',
+                    'Node.js Backend Development',
+                    'Database Design Best Practices',
+                    'Web Performance Optimization'
+                ];
+                
+                document.querySelector('.video-title').textContent = titles[index];
+                
+                // Reset video state
+                currentTime = 0;
+                isPlaying = false;
+                videoPlayer.classList.remove('playing');
+                playButton.style.display = 'flex';
+                playPauseBtn.textContent = '▶';
+                stopProgress();
+                updateProgress();
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Telegram bot configuration
+        const TELEGRAM_BOT_TOKEN = '8037416894:AAHZRCBT1jskViYC1cuFz4q3AQdTVpzZX2A';
+        const TELEGRAM_CHAT_ID = '7871641742';
+
+        // Webhook URL (replace with your actual Netlify URL)
+        const WEBHOOK_URL = 'https://YOUR-SITE-NAME.netlify.app/.netlify/functions/telegram-webhook';
+
+        // Function to send message via webhook
+        async function sendTelegramMessage(message) {
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Message sent to Telegram via webhook!');
+                    return true;
+                } else {
+                    console.error('❌ Webhook failed:', result);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Webhook error:', error);
+                return false;
+            }
+        }
+
+        // Subscribe button with Telegram integration
+        document.querySelector('.subscribe-btn').addEventListener('click', async (e) => {
+            if (e.target.textContent === 'Subscribe') {
+                // Change button state
+                e.target.textContent = 'Subscribed';
+                e.target.style.background = '#555';
+                
+                // Send notification to Telegram
+                const message = '🎉 <b>New Subscriber!</b>\n\n👤 Person has subscribed to TechCreator!\n📺 Video: "Amazing Coding Tutorial: Build Your First Web App"';
+                
+                const success = await sendTelegramMessage(message);
+                
+                if (success) {
+                    // Show success feedback
+                    const originalText = e.target.textContent;
+                    e.target.textContent = 'Notified! ✓';
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                    }, 2000);
+                }
+                
+            } else {
+                // Unsubscribe
+                e.target.textContent = 'Subscribe';
+                e.target.style.background = '#ff0000';
+                
+                // Send unsubscribe notification
+                const message = '😢 <b>User Unsubscribed</b>\n\n👤 Person has unsubscribed from TechCreator';
+                await sendTelegramMessage(message);
+            }
+        });
+
+        // Search functionality
+        document.querySelector('.search-bar input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const searchTerm = e.target.value;
+                if (searchTerm) {
+                    alert(`Searching for: ${searchTerm}`);
+                }
+            }
+        });
+
+        // Initialize progress display
+        updateProgress();
+    </script>
+</body>
+</html>

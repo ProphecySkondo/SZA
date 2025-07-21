@@ -1,0 +1,12 @@
+{
+  "name": "telegram-webhook",
+  "version": "1.0.0",
+  "description": "Simple webhook to send messages to Telegram bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
